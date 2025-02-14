@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Database</title>
+    <script>
+        function insertData() {
+            fetch('http://localhost:3000/insert', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    patients: [
+                        { name: "Alice", date_of_birth: "1995-05-12" },
+                        { name: "Bob", date_of_birth: "1980-03-22" }
+                    ]
+                })
+            }).then(res => res.json()).then(data => alert(data.message));
+        }
+
+        function executeQuery() {
+            const query = document.getElementById("sqlQuery").value;
+            const method = query.trim().toUpperCase().startsWith("SELECT") ? "GET" : "POST";
+            const url = `http://localhost:3000/query?sql=${encodeURIComponent(query)}`;
+
+            fetch(url, { method })
+                .then(res => res.json())
+                .then(data => alert(JSON.stringify(data)));
+        }
+    </script>
+</head>
+<body>
+    <button onclick="insertData()">Insert Sample Data</button>
+    <br><br>
+    <textarea id="sqlQuery" rows="4" cols="50"></textarea>
+    <br>
+    <button onclick="executeQuery()">Run Query</button>
+</body>
+</html>
