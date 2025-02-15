@@ -14,7 +14,8 @@ const db = mysql.createConnection({
     ssl: {
         ca: fs.readFileSync(process.env.CA_CERT_PATH), 
         rejectUnauthorized: true  
-    }
+    },
+    connectTimeout: 10000 // 10 seconds
 });
 db.connect(err => {
     if (err) throw err;
