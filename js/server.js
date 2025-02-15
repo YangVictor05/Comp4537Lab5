@@ -6,6 +6,8 @@ const url = require('url');
 const message = require('../lang/messages/en/user');
 require('dotenv').config();
 
+console.log(fs.readFileSync(process.env.CA_CERT_PATH));
+
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -17,7 +19,6 @@ const db = mysql.createConnection({
         rejectUnauthorized: true  
     }
 });
-console.log(ssl);
 db.connect(err => {
     if (err) throw err;
     console.log('Connected to MySQL');
