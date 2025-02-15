@@ -1,0 +1,8 @@
+# Ignore environment variables
+.env
+
+# Ignore dependencies (should be installed with npm install)
+node_modules/
+
+# Ignore log files
+*.log

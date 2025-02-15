@@ -2,13 +2,15 @@
 const http = require('http');
 const mysql = require('mysql2');
 const url = require('url');
+const message = require('../lang/messages/en/user');
+require('dotenv').config();
 
-// MySQL Connection Setup
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root', // Change to your MySQL username
-    password: '', // Change to your MySQL password
-    database: 'patients_db'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    ssl: { rejectUnauthorized: false } // Required for DigitalOcean Managed Databases
 });
 
 db.connect(err => {
@@ -19,7 +21,7 @@ db.connect(err => {
         db.query(`CREATE TABLE IF NOT EXISTS patients (
             patientid INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(100),
-            date_of_birth DATE
+            date_of_birth DATE  
         ) ENGINE=InnoDB;`, err => {
             if (err) throw err;
         });
@@ -38,14 +40,14 @@ const server = http.createServer((req, res) => {
             const values = data.patients.map(p => [p.name, p.date_of_birth]);
             db.query(sql, [values], (err, result) => {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ success: !err, message: err ? err.message : 'Inserted successfully' }));
+                res.end(JSON.stringify({ success: !err, message: err ? err.message : message.insertSuccess }));
             });
         });
     } else if (req.method === 'GET' && parsedUrl.pathname === '/query') {
         const sql = parsedUrl.query.sql;
         if (!sql.trim().toUpperCase().startsWith('SELECT')) {
             res.writeHead(403, { 'Content-Type': 'application/json' });
-            return res.end(JSON.stringify({ success: false, message: 'Only SELECT queries allowed' }));
+            return res.end(JSON.stringify({ success: false, message: message.SelectOnly }));
         }
         db.query(sql, (err, result) => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -57,4 +59,8 @@ const server = http.createServer((req, res) => {
     }
 });
 
-server.listen(3000, () => console.log('Server running on port 3000'));
+const PORT = 3000;
+const HOST = '0.0.0.0'; // Allows external access
+
+server.listen(PORT, HOST, () => console.log(`Server running on port ${PORT}`));
+
