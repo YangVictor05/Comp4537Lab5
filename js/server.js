@@ -68,8 +68,8 @@ const server = http.createServer((req, res) => {
             res.end(JSON.stringify({ success: !err, data: err ? err.message : result }));
         });
     } else {
-        res.writeHead("Nothing here", { 'Content-Type': 'application/json' });
-        res.end();
+        res.writeHead(404);
+        res.end(JSON.stringify({ success: false, message: message.invalidRequest }));
     }
 });
 
