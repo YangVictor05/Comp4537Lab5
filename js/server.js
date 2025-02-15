@@ -64,14 +64,8 @@ const server = http.createServer((req, res) => {
     }
 });
 
-const PORT = process.env.DB_PORT;
+const PORT = process.env.PORT;
 const HOST = '0.0.0.0'; // Allows external access
 
 server.listen(PORT, HOST, () => console.log(`Server running on port ${PORT}`));
 
-server.on('request', (req, res) => {
-    if (req.url === '/health') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: true, message: 'Server is healthy' }));
-    }
-});
