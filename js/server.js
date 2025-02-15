@@ -5,14 +5,16 @@ const mysql = require('mysql2');
 const url = require('url');
 const message = require('../lang/messages/en/user');
 require('dotenv').config();
+
+
 const db = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD, 
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT,
+    host: 'db-mysql-nyc3-38855-do-user-18948084-0.l.db.ondigitalocean.com',
+    user: 'doadmin',
+    password: 'AVNS_J5afLWUKgZcV3A1tMIK', 
+    database: 'defaultdb',
+    port: 25060,
     ssl: {
-        ca: fs.readFileSync(process.env.CA_CERT_PATH), 
+        ca: fs.readFileSync('./ca-certificate.crt'), 
         rejectUnauthorized: true  
     },
 });
