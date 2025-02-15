@@ -35,6 +35,15 @@ db.connect(err => {
 
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Content-Type", "application/json");
+
+    if (req.method === 'OPTIONS') {
+        res.writeHead(200);
+        res.end();
+    } else
 
     if (req.method === 'POST' && parsedUrl.pathname === '/insert') {
         let body = '';
@@ -59,7 +68,7 @@ const server = http.createServer((req, res) => {
             res.end(JSON.stringify({ success: !err, data: err ? err.message : result }));
         });
     } else {
-        res.writeHead(404);
+        res.writeHead("Nothing here", { 'Content-Type': 'application/json' });
         res.end();
     }
 });
