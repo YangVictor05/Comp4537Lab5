@@ -10,7 +10,7 @@ require('dotenv').config();
 const db = mysql.createConnection({
     host: 'db-mysql-nyc3-38855-do-user-18948084-0.l.db.ondigitalocean.com',
     user: 'doadmin',
-    password: 'AVNS_J5afLWUKgZcV3A1tMIK', 
+    password: process.env.DB_PASSWORD, 
     database: 'defaultdb',
     port: 25060,
     ssl: {
