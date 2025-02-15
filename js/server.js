@@ -35,9 +35,10 @@ db.connect(err => {
 
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    
+    res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins (for development, use specific domain in production)
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); // Allowed methods
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization"); // Allow Content-Type and Authorization headers
     res.setHeader("Content-Type", "application/json");
 
     if (req.method === 'OPTIONS') {
