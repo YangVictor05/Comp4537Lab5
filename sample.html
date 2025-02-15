@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Database</title>
+    <script>
+        function insertData() {
+            fetch('https://your-api-server.com/lab5/api/v1/insert', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    patients: [
+                        { name: "Sara Brown", date_of_birth: "1901-01-01" },
+                        { name: "John Smith", date_of_birth: "1941-01-01" },
+                        { name: "Jack Ma", date_of_birth: "1961-01-30" },
+                        { name: "Elon Musk", date_of_birth: "1999-01-01" }
+                    ]
+                })
+            })
+            .then(res => res.json())
+            .then(data => document.getElementById("response").textContent = JSON.stringify(data, null, 2))
+            .catch(err => document.getElementById("response").textContent = "Error: " + err);
+        }
+
+        function executeQuery() {
+            const query = document.getElementById("sqlQuery").value.trim();
+            if (!query) {
+                alert("Please enter an SQL query.");
+                return;
+            }
+
+            const isSelect = query.toUpperCase().startsWith("SELECT");
+            const url = `https://your-api-server.com/lab5/api/v1/sql/${encodeURIComponent(query)}`;
+
+            fetch(url, { method: isSelect ? "GET" : "POST" })
+                .then(res => res.json())
+                .then(data => document.getElementById("response").textContent = JSON.stringify(data, null, 2))
+                .catch(err => document.getElementById("response").textContent = "Error: " + err);
+        }
+    </script>
+</head>
+<body>
+    <h1>Patient Database</h1>
+
+    <button onclick="insertData()">Insert Sample Data</button>
+    <br><br>
+
+    <textarea id="sqlQuery" rows="4" cols="50" placeholder="Enter your SQL query here..."></textarea>
+    <br>
+    <button onclick="executeQuery()">Run Query</button>
+
+    <h3>Server Response:</h3>
+    <pre id="response"></pre>
+</body>
+</html>
