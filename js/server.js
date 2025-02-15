@@ -1,5 +1,6 @@
 // server.js (Origin 2)
 const http = require('http');
+const fs = require('fs');
 const mysql = require('mysql2');
 const url = require('url');
 const message = require('../lang/messages/en/user');
@@ -8,9 +9,13 @@ require('dotenv').config();
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
+    password: process.env.DB_PASSWORD, 
     database: process.env.DB_NAME,
-    ssl: { rejectUnauthorized: false } // Required for DigitalOcean Managed Databases
+    port: 25060,
+    ssl: {
+        ca: fs.readFileSync(process.env.CA_CERT_PATH), 
+        rejectUnauthorized: true  
+    }
 });
 
 db.connect(err => {
@@ -59,7 +64,7 @@ const server = http.createServer((req, res) => {
     }
 });
 
-const PORT = 3000;
+const PORT = process.env.DB_PORT;
 const HOST = '0.0.0.0'; // Allows external access
 
 server.listen(PORT, HOST, () => console.log(`Server running on port ${PORT}`));
