@@ -6,7 +6,8 @@ const url = require('url');
 const message = require('../lang/messages/en/user');
 require('dotenv').config();
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
+    connectionLimit: 10, // Adjust based on expected traffic
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD, 
@@ -18,24 +19,31 @@ const db = mysql.createConnection({
     },
 });
 
-db.connect(err => {
-    if (err) throw err;
+// Ensure the database and table exist
+db.getConnection((err, connection) => {
+    if (err) {
+        console.error('Database connection error:', err);
+        return;
+    }
     console.log('Connected to MySQL');
-    db.query("CREATE DATABASE IF NOT EXISTS patients_db", err => {
-        if (err) throw err;
-        db.query(`CREATE TABLE IF NOT EXISTS patients (
+
+    connection.query("CREATE DATABASE IF NOT EXISTS patients_db", err => {
+        if (err) console.error(err);
+        connection.query(`CREATE TABLE IF NOT EXISTS patients (
             patientid INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(100),
             date_of_birth DATE  
         ) ENGINE=InnoDB;`, err => {
-            if (err) throw err;
+            if (err) console.error(err);
+            connection.release(); // Release connection back to pool
         });
     });
 });
 
+// Create HTTP server
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
-    
+
     res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins (for development, use specific domain in production)
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS"); // Allowed methods
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization"); // Allow Content-Type and Authorization headers
@@ -44,15 +52,14 @@ const server = http.createServer((req, res) => {
     if (req.method === 'OPTIONS') {
         res.writeHead(200);
         res.end();
-    } else
-
-    if (req.method === 'POST' && parsedUrl.pathname === '/insert') {
+    } else if (req.method === 'POST' && parsedUrl.pathname === '/insert') {
         let body = '';
         req.on('data', chunk => body += chunk);
         req.on('end', () => {
             const data = JSON.parse(body);
             const sql = "INSERT INTO patients (name, date_of_birth) VALUES ?";
             const values = data.patients.map(p => [p.name, p.date_of_birth]);
+
             db.query(sql, [values], (err, result) => {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ success: !err, message: err ? err.message : message.insertSuccess }));
@@ -64,6 +71,7 @@ const server = http.createServer((req, res) => {
             res.writeHead(403, { 'Content-Type': 'application/json' });
             return res.end(JSON.stringify({ success: false, message: message.SelectOnly }));
         }
+
         db.query(sql, (err, result) => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ success: !err, data: err ? err.message : result }));
@@ -74,8 +82,7 @@ const server = http.createServer((req, res) => {
     }
 });
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0'; // Allows external access
 
 server.listen(PORT, HOST, () => console.log(`Server running on port ${PORT}`));
-
