@@ -6,7 +6,7 @@
     <title>Patient Database</title>
     <script>
         function insertData() {
-            fetch('http://localhost:3000/insert', {
+            fetch('https://jellyfish-app-hw2ys.ondigitalocean.app/insert', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -21,7 +21,7 @@
         function executeQuery() {
             const query = document.getElementById("sqlQuery").value;
             const method = query.trim().toUpperCase().startsWith("SELECT") ? "GET" : "POST";
-            const url = `http://localhost:3000/query?sql=${encodeURIComponent(query)}`;
+            const url = `https://jellyfish-app-hw2ys.ondigitalocean.app/query?sql=${encodeURIComponent(query)}`;
 
             fetch(url, { method })
                 .then(res => res.json())
