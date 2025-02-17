@@ -1,10 +1,13 @@
+<!-- assisted with ChatGPT -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Database</title>
-    <script>
+    <script type="module">
+        import messages from './user.js';
+
         function insertData() {
             fetch('http://localhost:3000/insert', {
                 method: 'POST',
@@ -15,17 +18,26 @@
                         { name: "Bob", date_of_birth: "1980-03-22" }
                     ]
                 })
-            }).then(res => res.json()).then(data => alert(data.message));
+            })
+            .then(res => res.json())
+            .then(data => alert(data.success ? messages.insertSuccess : messages.insertError))
+            .catch(() => alert(messages.backendError));
         }
 
         function executeQuery() {
-            const query = document.getElementById("sqlQuery").value;
-            const method = query.trim().toUpperCase().startsWith("SELECT") ? "GET" : "POST";
+            const query = document.getElementById("sqlQuery").value.trim();
+            if (!query) {
+                alert(messages.emptyQuery);
+                return;
+            }
+
+            const method = query.toUpperCase().startsWith("SELECT") ? "GET" : "POST";
             const url = `http://localhost:3000/query?sql=${encodeURIComponent(query)}`;
 
             fetch(url, { method })
                 .then(res => res.json())
-                .then(data => alert(JSON.stringify(data)));
+                .then(data => alert(data.success ? JSON.stringify(data.data) : messages.queryError))
+                .catch(() => alert(messages.backendError));
         }
     </script>
 </head>
