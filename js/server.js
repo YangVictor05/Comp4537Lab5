@@ -1,3 +1,4 @@
+// server.js created with the assistance of ChatGPT
 const http = require('http');
 const fs = require('fs');
 const mysql = require('mysql2');
