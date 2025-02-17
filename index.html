@@ -1,51 +1,61 @@
-<!-- assisted with chatGPT -->
+<!-- index.html created with the assistance of ChatGPT -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Database</title>
-    <script type="module">
-        import messages from './user.js';
-
-        function insertData() {
-            fetch('http://localhost:3000/insert', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    patients: [
-                        { name: "Alice", date_of_birth: "1995-05-12" },
-                        { name: "Bob", date_of_birth: "1980-03-22" }
-                    ]
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Patient Database</title>
+        <script type="module">
+            import messages from './lang/messages/en/user.js';
+    
+            window.insertData = function() {
+                fetch('https://jellyfish-app-hw2ys.ondigitalocean.app/insert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        patients: [
+                            { name: "Alice", date_of_birth: "1995-05-12" },
+                            { name: "Bob", date_of_birth: "1980-03-22" }
+                        ]
+                    })
                 })
-            })
-            .then(res => res.json())
-            .then(data => alert(data.success ? messages.insertSuccess : messages.insertError))
-            .catch(() => alert(messages.backendError));
-        }
-
-        function executeQuery() {
-            const query = document.getElementById("sqlQuery").value.trim();
-            if (!query) {
-                alert(messages.emptyQuery);
-                return;
-            }
-
-            const method = query.toUpperCase().startsWith("SELECT") ? "GET" : "POST";
-            const url = `http://localhost:3000/query?sql=${encodeURIComponent(query)}`;
-
-            fetch(url, { method })
                 .then(res => res.json())
-                .then(data => alert(data.success ? JSON.stringify(data.data) : messages.queryError))
-                .catch(() => alert(messages.backendError));
-        }
-    </script>
-</head>
-<body>
-    <button onclick="insertData()">Insert Sample Data</button>
-    <br><br>
-    <textarea id="sqlQuery" rows="4" cols="50"></textarea>
-    <br>
-    <button onclick="executeQuery()">Run Query</button>
-</body>
-</html>
+                .then(data => displayMessage(data.success ? messages.insertSuccess : messages.insertError, data.success))
+                .catch(() => displayMessage(messages.backendError, false));
+            };
+    
+            window.executeQuery = function() {
+                const query = document.getElementById("sqlQuery").value.trim();
+                if (!query) {
+                    displayMessage(messages.emptyQuery, false);
+                    return;
+                }
+    
+                const method = query.toUpperCase().startsWith("SELECT") ? "GET" : "POST";
+                const url = `https://jellyfish-app-hw2ys.ondigitalocean.app/query?sql=${encodeURIComponent(query)}`;
+    
+                fetch(url, { method })
+                    .then(res => res.json())
+                    .then(data => displayMessage(data.success ? JSON.stringify(data.data, null, 2) : messages.queryError, data.success))
+                    .catch(() => displayMessage(messages.backendError, false));
+            };
+    
+            function displayMessage(message, isSuccess) {
+                const resultArea = document.getElementById("resultArea");
+                resultArea.textContent = message;
+                resultArea.style.color = isSuccess ? "green" : "red";
+                resultArea.style.whiteSpace = "pre-wrap"; // Keeps JSON format readable
+            }
+        </script>
+    </head>
+    <body>
+        <button onclick="insertData()">Insert Sample Data</button>
+        <br><br>
+        <textarea id="sqlQuery" rows="4" cols="50"></textarea>
+        <br>
+        <button onclick="executeQuery()">Run Query</button>
+        <br><br>
+        <pre id="resultArea"></pre> <!-- Display message directly here -->
+    </body>
+    </html>
+    
